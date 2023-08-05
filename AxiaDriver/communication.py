@@ -3,8 +3,9 @@ import telnetlib3
 import re
 import logging
 import time
+from configuration import AxiaConfiguration
 
-class Communication:
+class AxiaCommunication:
     def __init__(self, ip_address) -> None:
         self.sensor_ip = ip_address
         self.sensor_port = 23
@@ -21,6 +22,39 @@ class Communication:
             self.reader.close()
             self.writer.close()
             self.connected = False
+
+    def read_configuration(self)-> AxiaConfiguration:
+        '''
+        Loads the configuration from the sensor as an AxiaConfiguration object.
+        '''
+        config = AxiaConfiguration()
+        settings = self.get_settings()
+        version  = self.get_system_version()
+        status   = self.get_status()[0]
+        config._settings_dict = {**settings, "firmware_version": version, "good_status": status}
+        return config
+    
+    def write_configuration(self, config: AxiaConfiguration):
+        '''
+        Write the provided configuration to the sensor memory.
+
+        WARNING: Only a subset of the properties in the configuration
+        can/will be written to the sensor. The rest will be ignored. 
+
+        The following properties will be written:
+            - adc_rate
+            - udp_transmit_rate
+            - filter_intensity
+            - calibration_number
+            - location
+        '''
+        com.set_adc_sample_rate(config.adc_rate)
+        com.set_udp_transmit_rate(config.udp_transmit_rate)
+        com.set_low_pass_filter(config.filter_intensity)
+        com.set_calibration(config.calibration_number)
+        com.set_location(config.location)
+
+        com.write_settings_to_memory()
 
     async def read_buffer(self, pattern_to_find='\r\n', timeout=5):
         '''
@@ -182,7 +216,7 @@ class Communication:
         if 'not changed' in data:
             old_value = new_value = value
         else:
-            pattern = '{} was "(\d+)" now "(\d+)"'.format(name)
+            pattern = '{} was "(\w+)" now "(\w+)"'.format(name)
             match = re.search(pattern, data)
             if match is not None:
                 old_value = int(match.group(1))
@@ -282,10 +316,13 @@ class Communication:
         '''
         Set a location string that describes where is the sensor.
 
-        The maximal length of the string is 40 characters.
+        The maximal length of the string is 40 characters and it
+        cannot contain any spaces.
         '''
         if len(location_description) > 40:
             raise Exception('Location description must be less than 40 characters.')
+        if ' ' in location_description:
+            raise Exception('Location description cannot contain spaces.')
         old_description, new_description = self.set_setting('location', location_description)
         return old_description, new_description
 
@@ -465,15 +502,11 @@ class Communication:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     sensor_ip = '192.168.1.1'
-    com = Communication(sensor_ip)
+    com = AxiaCommunication(sensor_ip)
     com.connect()
-    settings = com.get_settings()
     com.disable_bias()
     print(com.get_system_version())
     print(com.get_status())
-    #com.set_adc_sample_rate(7812)
-    #com.set_udp_transmit_rate(7812)
-    #com.set_low_pass_filter(8)
-    #com.set_calibration(1)
-    #com.set_location('Joe')
+    config = com.read_configuration()
+    com.write_configuration(config)
     com.disconnect()
