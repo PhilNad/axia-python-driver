@@ -219,8 +219,8 @@ class AxiaCommunication:
             pattern = '{} was "(\w+)" now "(\w+)"'.format(name)
             match = re.search(pattern, data)
             if match is not None:
-                old_value = int(match.group(1))
-                new_value = int(match.group(2))
+                old_value = match.group(1)
+                new_value = match.group(2)
             else:
                 logging.warning('Could not parse response: ' + data)
         logging.info('{} set to {}'.format(name, new_value))
@@ -234,9 +234,9 @@ class AxiaCommunication:
         if rate not in [488, 976, 1953, 3906, 7812]:
             raise Exception('Invalid sample rate. Must be one of 488, 976, 1953, 3906, 7812')
         old_rate, new_rate = self.set_setting('adcrate', rate)
-        return old_rate, new_rate
+        return int(old_rate), int(new_rate)
 
-    def set_udp_transmit_rate(self, rate=488):
+    def set_udp_transmit_rate(self, rate=7812):
         '''
         Set the rate at which the sensor will send UDP packets.
         By default, each packet contains a single sample (this can be changed
@@ -283,7 +283,7 @@ class AxiaCommunication:
             >
         '''
         old_rate, new_rate = self.set_setting('rdtrate', rate)
-        return old_rate, new_rate
+        return int(old_rate), int(new_rate)
 
     def set_low_pass_filter(self, filter_intensity=0):
         '''
@@ -299,7 +299,7 @@ class AxiaCommunication:
         if filter_intensity not in range(9):
             raise Exception('Invalid filter intensity. Must be between 0 and 8.')
         old_intensity, new_intensity = self.set_setting('filtc', filter_intensity)
-        return old_intensity, new_intensity
+        return int(old_intensity), int(new_intensity)
 
     def set_calibration(self, calibration_id):
         '''
@@ -310,7 +310,7 @@ class AxiaCommunication:
         if calibration_id not in range(2):
             raise Exception('Invalid calibration ID. Must be 0 or 1.')
         old_id, new_id = self.set_setting('calib', calibration_id)
-        return old_id, new_id
+        return int(old_id), int(new_id)
     
     def set_location(self, location_description):
         '''
@@ -501,12 +501,11 @@ class AxiaCommunication:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    sensor_ip = '192.168.1.1'
+    sensor_ip = '192.168.3.101'
     com = AxiaCommunication(sensor_ip)
     com.connect()
     com.disable_bias()
     print(com.get_system_version())
     print(com.get_status())
     config = com.read_configuration()
-    com.write_configuration(config)
     com.disconnect()

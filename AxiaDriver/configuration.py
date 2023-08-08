@@ -28,7 +28,11 @@ class AxiaConfiguration:
         '''
         Returns the value of a specific setting.
         '''
-        return self._settings_dict[setting_name]
+        try:
+            val = self._settings_dict[setting_name]
+        except KeyError:
+            val = None
+        return val
     
     def _set_setting(self, setting_name:str, setting_value:str) -> None:
         '''
@@ -352,3 +356,60 @@ class AxiaConfiguration:
         Returns the UDP port used by the sensor.
         '''
         return self._get_setting('rdtPort')
+    
+    @property
+    def biases(self):
+        '''
+        Returns the biases of the sensor as a list of 6 floats.
+        Any bias that is not set will be returned as zero.
+
+        The biases are expressed in the sensor's native units,
+        (e.g. N or Nm), NOT IN COUNTS.
+        '''
+        bFx = self._get_setting('biasFx')
+        if bFx is None:
+            bFx = 0
+        bFy = self._get_setting('biasFy')
+        if bFy is None:
+            bFy = 0
+        bFz = self._get_setting('biasFz')
+        if bFz is None:
+            bFz = 0
+        bTx = self._get_setting('biasTx')
+        if bTx is None:
+            bTx = 0
+        bTy = self._get_setting('biasTy')
+        if bTy is None:
+            bTy = 0
+        bTz = self._get_setting('biasTz')
+        if bTz is None:
+            bTz = 0
+
+        return [bFx, bFy, bFz, bTx, bTy, bTz]
+    
+    def set_biases(self, biases):
+        '''
+        Record the supplied biases in the sensor configuration.
+        WARNING: This only records the biases in the configuration
+        file and does not write biases to the sensor memory even
+        if the configuration is written to the sensor. This behaviour
+        is intended as having multiple source of biases can be
+        error prone.
+
+        Parameters:
+        biases: A list of 6 floats representing the biases to record
+        in their respective units (e.g. N and Nm), NOT IN COUNTS.
+
+        '''
+
+        #Verify that the biases are floats
+        for i in range(6):
+            if type(biases[i]) != float:
+                raise TypeError('Biases must be floats')
+
+        self._set_setting('biasFx', biases[0])
+        self._set_setting('biasFy', biases[1])
+        self._set_setting('biasFz', biases[2])
+        self._set_setting('biasTx', biases[3])
+        self._set_setting('biasTy', biases[4])
+        self._set_setting('biasTz', biases[5])

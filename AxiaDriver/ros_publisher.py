@@ -52,6 +52,9 @@ class AxiaRosPublisher:
         - Ty
         - Tz
 
+        Alternatively, a record can be a list with the following elements:
+        [ft_sequence, Fx, Fy, Fz, Tx, Ty, Tz]
+
         The ft_sequence number is used to set the sequence number of the
         ROS message. The timestamp of the ROS message is set to the current
         time. The frame_id of the ROS message is set to the serial number.
@@ -59,15 +62,26 @@ class AxiaRosPublisher:
         header = Header()
         header.stamp = rospy.Time.now()
         header.frame_id = self._config.current_config_serial_num
-        header.seq = record['ft_sequence']
-        wrench = WrenchStamped()
-        wrench.header = header
-        wrench.wrench.force.x = record['Fx']
-        wrench.wrench.force.y = record['Fy']
-        wrench.wrench.force.z = record['Fz']
-        wrench.wrench.torque.x = record['Tx']
-        wrench.wrench.torque.y = record['Ty']
-        wrench.wrench.torque.z = record['Tz']
+        if type(record) is dict:
+            header.seq = record['ft_sequence']
+            wrench = WrenchStamped()
+            wrench.header = header
+            wrench.wrench.force.x = record['Fx']
+            wrench.wrench.force.y = record['Fy']
+            wrench.wrench.force.z = record['Fz']
+            wrench.wrench.torque.x = record['Tx']
+            wrench.wrench.torque.y = record['Ty']
+            wrench.wrench.torque.z = record['Tz']
+        else:
+            header.seq = record[0]
+            wrench = WrenchStamped()
+            wrench.header = header
+            wrench.wrench.force.x = record[1]
+            wrench.wrench.force.y = record[2]
+            wrench.wrench.force.z = record[3]
+            wrench.wrench.torque.x = record[4]
+            wrench.wrench.torque.y = record[5]
+            wrench.wrench.torque.z = record[6]
         return wrench
 
     def _callback(self, records):
@@ -85,10 +99,10 @@ class AxiaRosPublisher:
 
 if __name__ == '__main__':
     config = AxiaConfiguration()
-    config.load_from_yaml('factory_configuration.yaml')
+    config.load_from_yaml('Axia_Ada_Config.yaml')
     pub = AxiaRosPublisher(config)
     pub.start()
     pub._udp_listener.start_continuous_stream()
-    rospy.sleep(5)
+    rospy.sleep(180)
     pub._udp_listener.stop_continuous_stream()
     pub.stop()
