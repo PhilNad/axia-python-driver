@@ -5,6 +5,13 @@ import logging
 import time
 from configuration import AxiaConfiguration
 
+'''
+The AxiaCommunication class is used to communicate with the Axia sensor
+over telnet. It can be used to read/write sensor's settings either
+temporarily or permanently. It can also be used to read the sensor's
+status and version.
+'''
+
 class AxiaCommunication:
     def __init__(self, ip_address) -> None:
         self.sensor_ip = ip_address

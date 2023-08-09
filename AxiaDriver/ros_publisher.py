@@ -1,9 +1,29 @@
 import rospy
-import logging
 from geometry_msgs.msg import WrenchStamped
 from std_msgs.msg import Header
 from configuration import AxiaConfiguration
 from udp_listener import AxiaUdpListener
+
+'''
+The AxiaRosPublisher class is responsible for publishing the data received
+from the Axia sensor to ROS. It was tested to be capable of publishing at a
+rate of approximately 7724 Hz, close to the maximal rate of the Axia sensor.
+
+Each ROS message is a WrenchStamped message, published on the `/AxiaWrench` topic, with the following fields:
+- header
+    - seq: The sequence number of the measurement record.
+    - stamp: The timestamp of the measurement record.
+    - frame_id: The serial number of the Axia sensor.
+- wrench
+    - force
+        - x: The x component of the force.
+        - y: The y component of the force.
+        - z: The z component of the force.
+    - torque
+        - x: The x component of the torque.
+        - y: The y component of the torque.
+        - z: The z component of the torque.
+'''
 
 class AxiaRosPublisher:
     '''
@@ -99,10 +119,10 @@ class AxiaRosPublisher:
 
 if __name__ == '__main__':
     config = AxiaConfiguration()
-    config.load_from_yaml('Axia_Ada_Config.yaml')
+    config.load_from_yaml('Axia_Joe_Config.yaml')
     pub = AxiaRosPublisher(config)
     pub.start()
     pub._udp_listener.start_continuous_stream()
-    rospy.sleep(180)
+    rospy.sleep(5)
     pub._udp_listener.stop_continuous_stream()
     pub.stop()

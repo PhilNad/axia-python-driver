@@ -4,6 +4,18 @@ import time
 import threading
 from configuration import AxiaConfiguration
 
+'''
+The AxiaUdpListener class listens to the UDP port of the Axia sensor and
+calls a callback function whenever data is received. The callback function
+is called with a list of measurement records. This class can also be used
+to trigger the Axia sensor to send (or stop sending) data. Two types of modes are supported:
+- Continuous mode: The Axia sensor continuously sends data at a fixed rate.
+- Batch mode: The Axia sensor sends a fixed number of records and then stops.
+
+At the maximum sampling rate of 7.8 kHz, the sensor can stream about 4.5 Mbps
+of data, generating about 10 MB/min of data on the disk when encoded in
+binary with no overhead.
+'''
 
 class AxiaUdpListener:
     def __init__(self, axia_config: AxiaConfiguration):
@@ -190,7 +202,7 @@ class AxiaUdpListener:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     config = AxiaConfiguration()
-    config.load_from_yaml('factory_configuration.yaml')
+    config.load_from_yaml('Axia_Joe_Config.yaml')
     udp = AxiaUdpListener(config)
     udp.connect()
     def cb(records):

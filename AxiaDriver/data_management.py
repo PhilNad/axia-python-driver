@@ -1,4 +1,3 @@
-import time
 import pickle
 import logging
 import numpy as np
@@ -7,6 +6,19 @@ from scipy.signal import savgol_filter
 from configuration import AxiaConfiguration
 from udp_listener import AxiaUdpListener
 from ros_publisher import AxiaRosPublisher
+
+'''
+The data management module contains classes for recording, filtering, and saving
+data received from the Axia sensor. A Recorder object can be used to record data
+and save it to disk, with the possibility of filtering and/or unbiasing the data
+before saving it. The Recorded can spawn a ROS publisher can be used to publish 
+the data to the `AxiaWrench` ROS topic.
+
+Note that the compute time involved in filtering and unbiasing the data is
+significant and will reduce the rate at which data can be recorded. If possible
+it is recommended to record the data without filtering or unbiasing, and then
+perform these operations offline.
+'''
 
 class Recorder:
     '''
@@ -88,7 +100,10 @@ class Recorder:
             #Detect missed records
             self._detect_missed_records(rec_array)
             #Filter
-            filtered_array = self._filtering.filter(rec_array)
+            if self._filtering is not None:
+                filtered_array = self._filtering.filter(rec_array)
+            else:
+                filtered_array = rec_array
             #Save
             self._saver.append(filtered_array)
 
@@ -438,5 +453,5 @@ if __name__ == '__main__':
     filter = Filtering.MovingAverageFilter(window_length=8)
     recorder = Recorder('output.csv', config, filter=filter, ros_publish=True)
     recorder.start_recording()
-    time.sleep(5)
+    #time.sleep(5)
     recorder.stop_recording()

@@ -1,6 +1,12 @@
 import yaml
 from pathlib import Path
 
+'''
+The AxiaConfiguration class is used to represent a specific configuration
+of the Axia sensor, which can be loaded and saveed in YAML files.
+'''
+
+
 class AxiaConfiguration:
     '''
     Used to represent a specific configuration of the Axia sensor.
