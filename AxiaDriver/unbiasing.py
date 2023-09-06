@@ -44,17 +44,16 @@ class Unbiasing:
         data_list = []
         file_path = Path(file_path).resolve()
 
-        assert file_path.suffix == 'csv' or file_path.suffix == 'CSV', "File must be csv"
+        assert file_path.suffix.lower() == '.csv', "File must be csv"
 
         with open(file_path, "r") as f:
-            reader = csv.reader(f, delimiter="\t")
-            for line in reader[1:]:
-                data_list.append(map(int, line.split()))
+            reader = csv.reader(f)
+            for line in reader:
+                data_list.append(list(map(float, line[1:])))
         data_array = np.array(data_list)
         bias = np.average(data_array, axis=0)
 
         self.set_biases(bias)
-            
 
     def unbias(self, records):
         '''

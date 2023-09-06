@@ -1,5 +1,6 @@
 import pickle
 import logging
+import time
 import numpy as np
 from pathlib import Path
 from scipy.signal import savgol_filter
@@ -397,7 +398,7 @@ if __name__ == '__main__':
     config = AxiaConfiguration()
     config.load_from_yaml('Axia_Joe_Config.yaml')
     filter = Filtering.MovingAverageFilter(window_length=8)
-    recorder = Recorder('output.csv', config, filter=filter, ros_publish=True)
+    recorder = Recorder('debias.csv', config, filter=filter, ros_publish=False)
     recorder.start_recording()
-    #time.sleep(5)
+    time.sleep(10)
     recorder.stop_recording()

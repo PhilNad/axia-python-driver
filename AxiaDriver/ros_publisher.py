@@ -124,7 +124,9 @@ class AxiaRosPublisher:
 if __name__ == '__main__':
     config = AxiaConfiguration()
     config.load_from_yaml('Axia_Joe_Config.yaml')
-    pub = AxiaRosPublisher(config)
+    unbiaser = Unbiasing(config)
+    #unbiaser.average_from_csv('debias.csv')
+    pub = AxiaRosPublisher(config, unbiaser)
     pub.start()
     pub._udp_listener.start_continuous_stream()
     rospy.sleep(5)
