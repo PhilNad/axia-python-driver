@@ -1,3 +1,4 @@
+import csv
 import pickle
 import logging
 import numpy as np
@@ -25,7 +26,8 @@ class Recorder:
     Records data sent over UDP, and perform unbiasing, filtering, and
     saving to disk.
     '''
-    def __init__(self, output_file_path:str, config:AxiaConfiguration, filter=None, UDP_listener:AxiaUdpListener = None, ros_publish:bool = False):
+    def __init__(self, output_file_path:str, config:AxiaConfiguration, filter=None, unbiaser=None,
+                 UDP_listener:AxiaUdpListener = None, ros_publish:bool = False):
         '''
         output_file_path: Path to the output file where the data will be saved.
         config: An Axia Configuration object.
@@ -49,7 +51,10 @@ class Recorder:
             self._udp_listener = UDP_listener
 
         #Unbiasing
-        self._unbiaser = Unbiasing(config)
+        if unbiaser is None:
+            self._unbiaser = Unbiasing(config)
+        else:
+            self._unbiaser = unbiaser
 
         #Filtering
         self._filtering = filter
@@ -189,6 +194,27 @@ class Unbiasing:
         self._biases = np.array(self._config.biases)
 
         return self._biases
+    
+    def average_from_csv(self, file_path:str):
+        """
+        Computes biases by averaging record data from a csv file.
+        Arguments:
+        :param str file_path: CSV file to read data and average biases from.
+        """
+        data_list = []
+        file_path = Path(file_path).resolve()
+
+        assert file_path.suffix == 'csv' or file_path.suffix == 'CSV', "File must be csv"
+
+        with open(file_path, "r") as f:
+            reader = csv.reader(f, delimiter="\t")
+            for line in reader[1:]:
+                data_list.append(map(int, line.split()))
+        data_array = np.array(data_list)
+        bias = np.average(data_array, axis=0)
+
+        self.set_biases(bias)
+            
 
     def unbias(self, records):
         '''
@@ -216,6 +242,31 @@ class Unbiasing:
             record['Ty'] -= self._biases[4]
             record['Tz'] -= self._biases[5]
         return records
+    
+    def unbias_single(self, record):
+        '''
+        Unbias a single measurement record.
+
+        A record is a dictionary with the following keys:
+        - rdt_sequence
+        - ft_sequence
+        - status
+        - Fx
+        - Fy
+        - Fz
+        - Tx
+        - Ty
+        - Tz
+
+        The biases are subtracted from the data.
+        '''
+        record['Fx'] -= self._biases[0]
+        record['Fy'] -= self._biases[1]
+        record['Fz'] -= self._biases[2]
+        record['Tx'] -= self._biases[3]
+        record['Ty'] -= self._biases[4]
+        record['Tz'] -= self._biases[5]
+        return record
 
 class Filtering:
     '''

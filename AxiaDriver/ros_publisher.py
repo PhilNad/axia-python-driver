@@ -2,6 +2,7 @@ import rospy
 from geometry_msgs.msg import WrenchStamped
 from std_msgs.msg import Header
 from configuration import AxiaConfiguration
+from data_management import Unbiasing
 from udp_listener import AxiaUdpListener
 
 '''
@@ -32,13 +33,14 @@ class AxiaRosPublisher:
     of approximately 7724 Hz, close to the maximal rate of the Axia sensor.
 
     '''
-    def __init__(self, config: AxiaConfiguration):
+    def __init__(self, config: AxiaConfiguration, unbiaser: Unbiasing = None):
         '''
         Starts a UDP listener and a ROS publisher using the given configuration.
 
         config: The Axia configuration.
         '''
         self._config = config
+        self._unbiaser = unbiaser
         self._udp_listener = AxiaUdpListener(config)
         self._publisher = rospy.Publisher('AxiaWrench', WrenchStamped, tcp_nodelay=True, queue_size=1)
         rospy.init_node('AxiaRosPublisher')
@@ -113,6 +115,8 @@ class AxiaRosPublisher:
         '''
         rospy.logdebug("Got {} records".format(len(records)))
         for record in records:
+            if self._unbiaser is not None:
+                record = self._unbiaser.unbias_single(record)
             msg = self._create_message(record)
             rospy.logdebug("Publishing message with sequence number {}".format(msg.header.seq))
             self._publisher.publish(msg)
