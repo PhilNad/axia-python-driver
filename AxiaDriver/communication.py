@@ -3,7 +3,7 @@ import telnetlib3
 import re
 import logging
 import time
-from configuration import AxiaConfiguration
+from .configuration import AxiaConfiguration
 
 '''
 The AxiaCommunication class is used to communicate with the Axia sensor

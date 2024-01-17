@@ -2,7 +2,10 @@
 This repository contains Python modules for the communication, configuration, and use of the ATI Axia line of Force-Torque sensors equipped with an Ethernet interface. 
 
 ## Installation
-The following dependencies are required:
+You should be able to install this package with:
+```
+pip install .
+```
 
 ### Dependencies
 - Python 3.7+

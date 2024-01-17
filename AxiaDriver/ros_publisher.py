@@ -1,9 +1,9 @@
 import rospy
 from geometry_msgs.msg import WrenchStamped
 from std_msgs.msg import Header
-from configuration import AxiaConfiguration
-from udp_listener import AxiaUdpListener
-from unbiasing import Unbiasing
+from .configuration import AxiaConfiguration
+from .udp_listener import AxiaUdpListener
+from .unbiasing import Unbiasing
 
 '''
 The AxiaRosPublisher class is responsible for publishing the data received

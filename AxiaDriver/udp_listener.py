@@ -2,7 +2,7 @@ import logging
 import socket
 import time
 import threading
-from configuration import AxiaConfiguration
+from .configuration import AxiaConfiguration
 
 '''
 The AxiaUdpListener class listens to the UDP port of the Axia sensor and

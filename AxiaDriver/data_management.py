@@ -4,10 +4,10 @@ import time
 import numpy as np
 from pathlib import Path
 from scipy.signal import savgol_filter
-from configuration import AxiaConfiguration
-from udp_listener import AxiaUdpListener
-from unbiasing import Unbiasing
-from ros_publisher import AxiaRosPublisher
+from .configuration import AxiaConfiguration
+from .udp_listener import AxiaUdpListener
+from .unbiasing import Unbiasing
+from .ros_publisher import AxiaRosPublisher
 
 '''
 The data management module contains classes for recording, filtering, and saving
