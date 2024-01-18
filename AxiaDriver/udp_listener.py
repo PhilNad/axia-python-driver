@@ -73,7 +73,6 @@ class AxiaUdpListener:
             logging.debug("Got {} records".format(len(records)))
 
         #Stop and reset the callback
-        self._thread.join()
         self._callback = None
 
     def stop_listening_thread(self):
