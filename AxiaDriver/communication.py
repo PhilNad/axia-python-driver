@@ -14,17 +14,37 @@ status and version.
 
 class AxiaCommunication:
     def __init__(self, ip_address) -> None:
+        '''
+        Creates a new AxiaCommunication object, but does not connect automatically to the sensor.
+
+        ip_address: IP address of the sensor.
+        '''
         self.sensor_ip = ip_address
         self.sensor_port = 23
         self.connected = False
     
-    def connect(self, username='ati', password='ati7720115'):
+    def connect(self, username='ati', password='ati7720115', timeout=5):
+        '''
+        Connects to the sensor via a telnet connection and logs in.
+
+        username: Username to use to log in.
+        password: Password to use to log in.
+        timeout: Timeout in seconds.
+        '''
         loop = asyncio.get_event_loop()
-        self.reader, self.writer = loop.run_until_complete(telnetlib3.open_connection(self.sensor_ip, self.sensor_port))
+        self.reader, self.writer = loop.run_until_complete(
+                asyncio.wait_for(
+                    telnetlib3.open_connection(self.sensor_ip, self.sensor_port)
+                    , timeout
+                )
+            )
         self.login(username, password)
         self.connected = True
 
     def disconnect(self):
+        '''
+        Closes the telnet connection to the sensor.
+        '''
         if self.connected:
             self.reader.close()
             self.writer.close()
