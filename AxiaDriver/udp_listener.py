@@ -3,6 +3,7 @@ import socket
 import time
 import threading
 from .configuration import AxiaConfiguration
+from .communication import AxiaCommunication
 
 '''
 The AxiaUdpListener class listens to the UDP port of the Axia sensor and
@@ -30,12 +31,20 @@ class AxiaUdpListener:
         self._cpt        = axia_config.counts_per_torque
         self._connected  = False
 
-    def connect(self):
+    def connect(self, timeout=5):
         '''
-        Connects to the Axia sensor.
+        Listen to data coming from the Axia sensor via UDP packets.
+
+        timeout: The timeout in seconds for the connection.
         '''
+
+        #Test if the sensor is connected by attempting a telnet connection.
+        # Calling the connect() method will raise an exception if the connection fails.
+        com = AxiaCommunication(self._ip_address)
+        com.connect(timeout=timeout)
+
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._logger.info("Connected to {}:{} @ {} (Good Status = {})".format(self._ip_address, self._port, self._location, self._status))
+        self._logger.info("Listening to {}:{} @ {} (Good Status = {})".format(self._ip_address, self._port, self._location, self._status))
         self._connected = True
 
     def disconnect(self):
