@@ -419,3 +419,69 @@ class AxiaConfiguration:
         self._set_setting('biasTx', biases[3])
         self._set_setting('biasTy', biases[4])
         self._set_setting('biasTz', biases[5])
+
+    def set_adc_sample_rate(self, rate=7812):
+        '''
+        Sets the ADC sample rate in Hz  for the configuration.
+        This does not write the configuration to the sensor. 
+        The rate must be one of the following: 488, 976, 1953, 3906, 7812
+        '''
+        if rate not in [488, 976, 1953, 3906, 7812]:
+            raise Exception('Invalid sample rate. Must be one of 488, 976, 1953, 3906, 7812')
+        self._set_setting('adcRate', rate)
+
+    def set_udp_transmit_rate(self, rate=7812):
+        '''
+        Sets the UDP transmit rate in Hz for the configuration.
+        This does not write the configuration to the sensor.
+
+        Note:
+        See the eponym function in AxiaDriver.communication for more details.
+        '''
+
+        if rate > 7812:
+            raise Exception('Invalid transmit rate. Must be less than or equal to 7812 Hz.')
+
+        self._set_setting('rdtRate', int(rate))
+
+    def set_low_pass_filter(self, filter_intensity=0):
+        '''
+        Sets the time constant of the low-pass filter in the configuration. 
+        This does not write the configuration to the sensor.
+
+        The filter intensity must be between 0 and 8. When the filter intensity is 0, 
+        the filter is disabled. Choosing to use a filter does not change the data
+        rate. However, for a higer data rate, the cutoff frequency of the filter will be lower.
+
+        A greater filter intensity will presumably introduce a greater delay.
+        See the user manual to know the cutoff frequency for each filter.
+        '''
+        if filter_intensity not in range(9):
+            raise Exception('Invalid filter intensity. Must be between 0 and 8.')
+        self._set_setting('filTc', filter_intensity)
+
+
+    def set_calibration(self, calibration_id):
+        '''
+        Sets the calibration to use in the configuration.
+        This does not write the configuration to the sensor.
+        The calibration ID must be one that is available on the sensor. 
+        For the Axia, two calibrations are available: 0 and 1. The calibration
+        #0 has a greater range but a lower accuracy than the calibration #1.
+        '''
+        if calibration_id not in range(2):
+            raise Exception('Invalid calibration ID. Must be 0 or 1.')
+        self._set_setting('calib', calibration_id)
+    
+    def set_location(self, location_description):
+        '''
+        Set a location string, in the configuration, which describes where is the sensor.
+        This does not write the configuration to the sensor.
+
+        The maximal length of the string is 40 characters and it cannot contain any spaces.
+        '''
+        if len(location_description) > 40:
+            raise Exception('Location description must be less than 40 characters.')
+        if ' ' in location_description:
+            raise Exception('Location description cannot contain spaces.')
+        self._set_setting('location', location_description)
