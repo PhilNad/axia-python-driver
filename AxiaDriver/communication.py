@@ -75,13 +75,13 @@ class AxiaCommunication:
             - calibration_number
             - location
         '''
-        com.set_adc_sample_rate(config.adc_rate)
-        com.set_udp_transmit_rate(config.udp_transmit_rate)
-        com.set_low_pass_filter(config.filter_intensity)
-        com.set_calibration(config.calibration_number)
-        com.set_location(config.location)
+        self.set_adc_sample_rate(config.adc_rate)
+        self.set_udp_transmit_rate(config.udp_transmit_rate)
+        self.set_low_pass_filter(config.filter_intensity)
+        self.set_calibration(config.calibration_number)
+        self.set_location(config.location)
 
-        com.write_settings_to_memory()
+        self.write_settings_to_memory()
 
     async def read_buffer(self, pattern_to_find='\r\n', timeout=5):
         '''
