@@ -1,0 +1,52 @@
+[workspace]
+name = "axia-python-driver"
+version = "0.1.0"
+description = "ATI Axia80 F/T sensor driver, with its ROS 2 (Jazzy) node"
+channels = ["conda-forge", "https://prefix.dev/robostack-jazzy"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = "3.12.*"
+numpy = ">=2.0"
+scipy = "*"
+pyyaml = "*"
+telnetlib3 = ">=2.0"
+pytest = "*"
+ros-jazzy-ros-base = "*"
+ros-jazzy-rclpy = "*"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
+ros-jazzy-geometry-msgs = "*"
+ros-jazzy-diagnostic-msgs = "*"
+ros-jazzy-std-srvs = "*"
+ros-jazzy-launch-ros = "*"
+ros-jazzy-ros2launch = "*"
+colcon-common-extensions = "*"
+
+# The ROS environment (CycloneDDS, domain 42, unicast peers) and the overlay; AxiaDriver is
+# imported from the repository itself (PYTHONPATH), because setup.py still lists rospy.
+[activation]
+scripts = ["scripts/ros2_env.sh"]
+
+[tasks.build]
+cmd = "cd ros2_ws && colcon build --merge-install --symlink-install"
+description = "Build the axia_ros2 package into ros2_ws/install"
+
+[tasks.test]
+cmd = "pytest ros2_ws/src/axia_ros2/test -v"
+description = "RDT parsing, sequence clock, fake-sensor end to end (no hardware)"
+
+[tasks.axia-node]
+cmd = "ros2 launch axia_ros2 axia.launch.py"
+description = "The Axia ROS 2 node (publishes /axia/wrench)"
+
+[tasks.axia-config]
+cmd = "python -m axia_ros2.cli config"
+description = "Show (or set, RAM only) the sensor settings over telnet"
+
+[tasks.axia-record]
+cmd = "python -m axia_ros2.cli record"
+description = "Record the raw RDT stream to CSV without ROS (up to 7812 Hz)"
+
+[tasks.fake-sensor]
+cmd = "python -m axia_ros2.fake_sensor"
+description = "An RDT emulator on localhost, for trying the node without the sensor"

@@ -1,0 +1,14 @@
+# axia_node parameters for Joe's Axia80-M8 (FT45616, SI-150-8). The sensor itself is described by
+# the repository's Axia_Joe_Config.yaml (IP 192.168.3.101, cpf/cpt); telnet writes are RAM only.
+axia:
+  ros__parameters:
+    adc_rate: 7812          # ADC sampling (488, 976, 1953, 3906, 7812)
+    rdt_rate: 1000          # UDP output rate; the estimator steps at 250 Hz (decimation 4)
+    filter_index: 0         # sensor low-pass off: the estimator models white noise
+    calibration: 0          # calibration 0 = SI-150-8 range
+    apply_config: true
+    disable_bias: true      # never let the sensor subtract a bias of its own
+    stamp_mode: sequence
+    clock_counter: ft_sequence
+    frame_id: axia_sensor
+    topic: /axia/wrench

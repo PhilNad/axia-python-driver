@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Unicast peer discovery for the FR3 lab network: a copy of utiasSTARS robots-bringup's
+     franka/cyclonedds.xml so this workspace and the RT PCs' franka_ros2 bringup agree.
+     duolith (192.168.2.1) sits behind the Linux bridge br0, which drops multicast SPDP, so the
+     participants are listed explicitly. enp3s0 is the RT PCs' FCI port; on duolith only br0
+     exists (presence_required=false keeps the same file valid on every host). -->
+<CycloneDDS xmlns="https://cdds.io/config">
+  <Domain id="any">
+    <General>
+      <Interfaces>
+        <NetworkInterface name="enp3s0" presence_required="false"/>
+        <NetworkInterface name="br0"    presence_required="false"/>
+      </Interfaces>
+      <AllowMulticast>spdp</AllowMulticast>
+    </General>
+    <Discovery>
+      <Peers>
+        <Peer Address="192.168.2.1"/>
+        <Peer Address="192.168.2.100"/>
+        <Peer Address="192.168.2.101"/>
+      </Peers>
+    </Discovery>
+  </Domain>
+</CycloneDDS>
