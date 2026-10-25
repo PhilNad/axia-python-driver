@@ -9,6 +9,7 @@ FR3 network: CycloneDDS, `ROS_DOMAIN_ID=42`, unicast discovery (`config/cycloned
 pixi install && pixi run build && pixi run test     # 7 tests against an RDT emulator, no sensor
 pixi run axia-config show                           # telnet: settings, firmware, status
 pixi run axia-node                                  # -> /axia/wrench, /axia/diagnostics
+pixi run axia-watch                                 # readable view of /axia/wrench (5 lines/s)
 pixi run axia-record --seconds 30 --rdt 7812        # raw CSV without ROS, prints the noise
 pixi run fake-sensor                                # emulator; then: pixi run axia-node ip:=127.0.0.1 apply_config:=false
 ```
