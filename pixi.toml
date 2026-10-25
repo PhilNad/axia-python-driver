@@ -47,6 +47,10 @@ description = "Show (or set, RAM only) the sensor settings over telnet"
 cmd = "python -m axia_ros2.cli record"
 description = "Record the raw RDT stream to CSV without ROS (up to 7812 Hz)"
 
+[tasks.axia-watch]
+cmd = "ros2 run axia_ros2 axia_watch"
+description = "Readable live view of /axia/wrench: mean and change since start, 5 lines/s"
+
 [tasks.fake-sensor]
 cmd = "python -m axia_ros2.fake_sensor"
 description = "An RDT emulator on localhost, for trying the node without the sensor"

@@ -24,5 +24,6 @@ setup(
         "axia_node = axia_ros2.axia_node:main",
         "axia_cli = axia_ros2.cli:main",
         "fake_sensor = axia_ros2.fake_sensor:main",
+        "axia_watch = axia_ros2.watch:main",
     ]},
 )
