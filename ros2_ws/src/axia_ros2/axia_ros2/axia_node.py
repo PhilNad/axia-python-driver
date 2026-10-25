@@ -160,7 +160,11 @@ class AxiaNode(Node):
                 msg.header.stamp.sec, msg.header.stamp.nanosec = sec, int((t - sec) * 1e9)
                 (msg.wrench.force.x, msg.wrench.force.y, msg.wrench.force.z,
                  msg.wrench.torque.x, msg.wrench.torque.y, msg.wrench.torque.z) = (float(v) for v in w)
-                self.pub.publish(msg)
+                try:
+                    self.pub.publish(msg)
+                except Exception:            # the context is gone (shutdown): stop quietly
+                    self._running = False
+                    break
                 self.published += 1
 
     def _rate(self):
@@ -251,6 +255,8 @@ class AxiaNode(Node):
 
 
 def main(args=None):
+    import signal
+
     rclpy.init(args=args)
     node = AxiaNode()
     try:
@@ -258,6 +264,9 @@ def main(args=None):
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
         pass
     finally:
+        # under `ros2 launch` a terminal Ctrl-C arrives twice: let the cleanup finish
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
         node.shutdown()
         node.destroy_node()
         if rclpy.ok():

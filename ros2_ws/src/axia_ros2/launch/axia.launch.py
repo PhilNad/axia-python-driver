@@ -25,7 +25,7 @@ def _node(context):
         if v:
             overrides[name] = v.lower() in ("1", "true", "yes")
     return [Node(package="axia_ros2", executable="axia_node", name="axia", output="screen",
-                 parameters=params + [overrides])]
+                 sigterm_timeout="10", parameters=params + [overrides])]
 
 
 def generate_launch_description():
